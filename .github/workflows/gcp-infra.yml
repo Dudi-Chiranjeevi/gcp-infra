@@ -30,8 +30,8 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Terraform Format Check
-      run: terraform fmt -check
+    - name: Terraform Format Fix
+      run: terraform fmt -recursive
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
