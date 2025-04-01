@@ -1,7 +1,7 @@
-name: 'GCP-Infra-flow'
+name: 'Terraform-Destroy-Flow'
 
 on:
-  workflow_dispatch:  # Allows manual trigger for destroy
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,12 +21,16 @@ jobs:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
     - name: Terraform Init
-      run: terraform init
+      run: terraform init -reconfigure
 
     - name: Show Terraform State (Debug)
-      run: terraform state list || echo "No resources found."
+      run: terraform state list || echo "No resources tracked by Terraform."
 
     - name: Terraform Destroy
       run: terraform destroy -auto-approve -input=false
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Manually Remove Orphaned State (if needed)
+      if: failure()
+      run: terraform state rm $(terraform state list) || echo "No state found."
