@@ -1,7 +1,7 @@
-name: 'Terraform-Destroy-Flow'
+name: 'GCP-Infra-Flow'
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # This triggers the workflow manually
 
 permissions:
   contents: read
@@ -12,25 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Setup Terraform
+    - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-    - name: Terraform Init with Remote Backend
-      run: terraform init -reconfigure || echo "Reinitialization failed!"
+    - name: Terraform Init
+      run: terraform init -reconfigure
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
-    - name: Show Terraform State (Debug)
+    - name: Terraform State List
       run: terraform state list || echo "No resources tracked by Terraform."
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
-    - name: Import Resources (If Needed)
-      run: |
-        terraform import google_compute_instance.my_instance projects/YOUR_PROJECT_ID/zones/YOUR_ZONE/instances/YOUR_INSTANCE_NAME || echo "Import failed, resource might not exist."
-
-    - name: Terraform Destroy
-      run: terraform destroy -auto-approve -input=false || echo "Destroy failed!"
+    - name: Terraform Destroy (Manual)
+      run: terraform destroy -auto-approve -input=false
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
