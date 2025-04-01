@@ -31,7 +31,7 @@ jobs:
       run: terraform init
 
     - name: Terraform Format Fix
-      run: terraform fmt -recursive
+      run: terraform fmt -check
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
@@ -48,6 +48,6 @@ jobs:
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main'  # Only apply on main branch
-      run: terraform apply -auto-approve -input=false
+      run: terraform destroy -auto-approve -input=false
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
